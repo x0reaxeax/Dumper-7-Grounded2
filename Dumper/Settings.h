@@ -15,7 +15,7 @@ namespace Settings
 #endif
 	}
   
-	inline constexpr const char* GlobalConfigPath = "C:/Dumper-7/Dumper-7.ini";
+	inline constexpr const char* GlobalConfigPath = "G:/Dumper-7/Dumper-7.ini";
 
 	namespace Config
 	{
@@ -40,7 +40,7 @@ namespace Settings
 		inline std::string GameName = "";
 		inline std::string GameVersion = "";
 
-		inline constexpr const char* SDKGenerationPath = "C:/Dumper-7";
+		inline constexpr const char* SDKGenerationPath = "G:/Dumper-7";
 	}
 
 	namespace CppGenerator

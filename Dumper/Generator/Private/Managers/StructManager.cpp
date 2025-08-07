@@ -256,6 +256,48 @@ void StructManager::Init()
 	const UEObject UObjectClass = ObjectArray::FindClassFast("Object");
 	StructInfoOverrides.find(UObjectClass.GetIndex())->second.Alignment = sizeof(void*);
 
+	/* Grounded2 Specific */
+    const UEStruct FDataTableRowHandleStruct = ObjectArray::FindStructFast("DataTableRowHandle");
+	if (FDataTableRowHandleStruct) {
+        std::cerr << "Overriding FDataTableRowHandle size and alignment" << std::endl;
+		StructInfoOverrides.find(
+			FDataTableRowHandleStruct.GetIndex()
+        )->second.Size = 0x10;	// FDataTableRowHandle {
+								//		class UDataTable* (0x8) ptr
+								//      FName RowName { 
+                                //           	int32 ComparisonIndex
+								//				uint32 Number
+                                //      } (0x8)
+                                // } (0x10)
+		StructInfoOverrides.find(
+			FDataTableRowHandleStruct.GetIndex()
+		)->second.Alignment = 0x8;
+        StructInfoOverrides.find(
+			FDataTableRowHandleStruct.GetIndex()
+        )->second.bUseExplicitAlignment = true;
+	} else {
+		std::cerr << "FDataTableRowHandle struct not found, skipping override" << std::endl;
+	}
+	
+    const UEStruct FDataTableRowHandle_NetCrc32 = ObjectArray::FindStructFast("DataTableRowHandle_NetCrc32");
+	if (FDataTableRowHandle_NetCrc32) {
+        std::cerr << "Overriding FDataTableRowHandle_NetCrc32 size and alignment" << std::endl;
+		StructInfoOverrides.find(
+			FDataTableRowHandle_NetCrc32.GetIndex()
+        )->second.Size = 0x18;	// sizeof(FDataTableRowHandle) + sizeof(uint32) => 0x10 + 0x4 => 0x14 => padded to 0x18
+		StructInfoOverrides.find(
+			FDataTableRowHandle_NetCrc32.GetIndex()
+		)->second.Alignment = 0x8;
+		StructInfoOverrides.find(
+			FDataTableRowHandle_NetCrc32.GetIndex()
+		)->second.bUseExplicitAlignment = true;
+		StructInfoOverrides.find(
+			FDataTableRowHandle_NetCrc32.GetIndex()
+        )->second.LastMemberEnd = 0x18; // Cut this bitch
+	} else {
+        std::cerr << "FDataTableRowHandle_NetCrc32 not found, skipping override" << std::endl;
+	}
+
 	/* I still hate whoever decided to call "UStruct" "Ustruct" on some UE versions. */
 	if (const UEObject UStructClass = ObjectArray::FindClassFast("struct"))
 		StructInfoOverrides.find(UStructClass.GetIndex())->second.Name = UniqueNameTable.FindOrAdd(std::string("UStruct"), false).first;
